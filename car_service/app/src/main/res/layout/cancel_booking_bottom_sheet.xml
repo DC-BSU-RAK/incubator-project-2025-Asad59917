@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_warning"
+            android:layout_marginEnd="12dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel Booking"
+            android:textColor="#2C2C2C"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Booking Details -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="#F8F9FA"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Booking Details"
+                android:textColor="#6B7280"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvCancelServiceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Car Wash Service"
+                android:textColor="#2C2C2C"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvCancelVehicleInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Toyota Camry - ABC 123"
+                android:textColor="#6B7280"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvCancelDateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="25 Dec 2024"
+                android:textColor="#6B7280"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvCancelLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dubai, U.A.E"
+                android:textColor="#6B7280"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Warning Message -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Are you sure you want to cancel this booking? This action cannot be undone."
+        android:textColor="#6B7280"
+        android:textSize="14sp"
+        android:lineSpacingExtra="2dp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnKeepBooking"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="Keep Booking"
+            android:textColor="@color/Not_selected_item_background"
+            android:backgroundTint="@android:color/transparent"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_marginEnd="12dp"
+            app:strokeWidth="1dp"
+            app:cornerRadius="13dp"
+            app:strokeColor="@color/blue_primary"
+            android:minWidth="120dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="Cancel Booking"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/blue_primary"
+            app:cornerRadius="13dp"
+            android:minWidth="140dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

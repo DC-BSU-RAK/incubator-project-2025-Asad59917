@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:id="@+id/road_side_assistance"
+    tools:context=".cartowing">
+
+    <!-- Fixed Image at the Top (no rounded corners on the image itself) -->
+    <ImageView
+        android:id="@+id/ivRoadSideHeaderImage"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:contentDescription="Road side assistance"
+        android:scaleType="centerCrop"
+        android:src="@drawable/cartowingimg"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Top Bar with Back Button and Title (positioned over the image) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/roadSideTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnRoadSideBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvRoadSideTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Road Side Assistance"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnRoadSideBack"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Content Card that overlaps the image with rounded top corners -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/roadSideContentCard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="200dp"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Scrollable Content Area -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/roadSideScrollContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:overScrollMode="never"
+                android:background="@android:color/white"
+                android:paddingBottom="80dp"
+                android:clipToPadding="false"
+                app:layout_constraintBottom_toTopOf="@+id/roadSideBottomButtonContainer"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvRoadSideMainTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Car Breakdown? We've Got You Covered!!"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvRoadSideDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="If your car breaks down unexpectedly, don't worry! Our team of skilled professionals is here to help. Whether you're stuck on the side of the road, in a parking lot, or anywhere else, we'll come to your rescue."
+                        android:textColor="@color/dark_gray"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvRoadSideServicesTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Our Services Include:"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Service Points List -->
+                    <LinearLayout
+                        android:id="@+id/roadSideServicePointsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Towing Services: If your car can't be fixed on the spot, we'll arrange for a recovery truck to pick it up and take it to the nearest repair shop."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Jump-Starts: Dead battery? No problem! We'll jump-start your vehicle so you can get back on the road."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Flat Tire Assistance: Got a flat tire? Our experts will change it for you or provide a temporary fix."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Lockout Services: Locked your keys inside the car? We'll help you get back in."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvRoadSideSafetyNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Remember, safety comes first! If you're in an unsafe location or facing a serious emergency, call the local authorities immediately. Otherwise, reach out to us, and we'll be there to assist you."
+                        android:textColor="@color/dark_gray"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <!-- Fixed Button at the Bottom -->
+            <FrameLayout
+                android:id="@+id/roadSideBottomButtonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:background="#005662F6"
+                android:elevation="10dp"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="67dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRoadSideCallNow"
+                        android:layout_width="310dp"
+                        android:layout_height="67dp"
+                        android:backgroundTint="@color/blue"
+                        android:text="Get assistance"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        app:cornerRadius="16dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <!-- Circle with call icon at the right side -->
+                    <FrameLayout
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_marginEnd="15dp"
+                        android:background="@drawable/circle_light_blue_bg"
+                        app:layout_constraintEnd_toEndOf="@+id/btnRoadSideCallNow"
+                        app:layout_constraintTop_toTopOf="@+id/btnRoadSideCallNow"
+                        app:layout_constraintBottom_toBottomOf="@+id/btnRoadSideCallNow">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_call"
+                            app:tint="@color/white" />
+                    </FrameLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

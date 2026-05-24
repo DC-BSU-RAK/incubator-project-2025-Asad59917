@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:id="@+id/service_contract"
+    tools:context=".ServiceContractPage">
+
+    <!-- Fixed Image at the Top (no rounded corners on the image itself) -->
+    <ImageView
+        android:id="@+id/ivServiceContractHeaderImage"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:contentDescription="Service contract"
+        android:scaleType="centerCrop"
+        android:src="@drawable/servicepageimg"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Top Bar with Back Button and Title (positioned over the image) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/serviceContractTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnServiceContractBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvServiceContractTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Service contract"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnServiceContractBack"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Content Card that overlaps the image with rounded top corners -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/serviceContractContentCard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="200dp"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Scrollable Content Area -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/serviceContractScrollContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:overScrollMode="never"
+                android:background="@android:color/white"
+                android:clipToPadding="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvServiceContractMainTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Your Vehicle Deserves the Best Care!"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvServiceContractDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Our service contract ensures peace of mind for vehicle owners. By signing up, you gain access to a range of benefits and services designed to keep your car running smoothly."
+                        android:textColor="@color/dark_gray"
+                        android:textSize="16sp" />
+
+                    <!-- Service Contract Option 1 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/serviceContractOption1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="5dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption1Title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="1-Year Service Contract"
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption1Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption1Details1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="• 1 X Minor Service"
+                                android:textColor="@color/dark_gray"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption1Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption1Title" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption1Details2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="• 1 X Major Service"
+                                android:textColor="@color/dark_gray"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption1Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption1Details1" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption1Price"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Starting from AED 1,315"
+                                android:textColor="@color/black"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption1Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption1Details2" />
+
+                            <ImageButton
+                                android:id="@+id/btnServiceContractOption1Detail"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:background="@drawable/circle_light_blue_bg"
+                                android:contentDescription="View more details"
+                                android:src="@drawable/ic_arrow_right"
+                                app:tint="@color/white"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Service Contract Option 2 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/serviceContractOption2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="5dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption2Title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="1-Year Service Contract"
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption2Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption2Details1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="• 1 X Minor Service"
+                                android:textColor="@color/dark_gray"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption2Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption2Title" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption2Details2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="• 1 X Major Service"
+                                android:textColor="@color/dark_gray"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption2Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption2Details1" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption2Price"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Starting from AED 1,315"
+                                android:textColor="@color/black"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption2Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption2Details2" />
+
+                            <ImageButton
+                                android:id="@+id/btnServiceContractOption2Detail"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:background="@drawable/circle_light_blue_bg"
+                                android:contentDescription="View more details"
+                                android:src="@drawable/ic_arrow_right"
+                                app:tint="@color/white"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Service Contract Option 3 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/serviceContractOption3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="5dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption3Title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="1-Year Service Contract"
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption3Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption3Details1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="• 1 X Minor Service"
+                                android:textColor="@color/dark_gray"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption3Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption3Title" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption3Details2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="• 1 X Major Service"
+                                android:textColor="@color/dark_gray"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption3Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption3Details1" />
+
+                            <TextView
+                                android:id="@+id/tvServiceContractOption3Price"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Starting from AED 1,315"
+                                android:textColor="@color/black"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toStartOf="@+id/btnServiceContractOption3Detail"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tvServiceContractOption3Details2" />
+
+                            <ImageButton
+                                android:id="@+id/btnServiceContractOption3Detail"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:background="@drawable/circle_light_blue_bg"
+                                android:contentDescription="View more details"
+                                android:src="@drawable/ic_arrow_right"
+                                app:tint="@color/white"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.cardview.widget.CardView>
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@drawable/dialog_background"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <!-- Success Icon -->
+    <FrameLayout
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="32dp">
+
+        <!-- Circular background -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/circle_blue" />
+
+        <!-- Checkmark icon -->
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_check_white"
+            android:contentDescription="Success" />
+
+    </FrameLayout>
+
+    <!-- Success Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:text="Successful !"
+        android:textColor="#333333"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <!-- Success Message -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="40dp"
+        android:gravity="center"
+        android:text="Your registration has been done\nsuccessfully"
+        android:textColor="#666666"
+        android:textSize="18sp"
+        android:lineSpacingMultiplier="1.2" />
+
+    <!-- Sign in button with arrow inside -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_in_button"
+            android:layout_width="310dp"
+            android:layout_height="67dp"
+            android:backgroundTint="#4175FC"
+            android:elevation="5dp"
+            android:gravity="center"
+            android:text="DONE"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="14dp" />
+
+        <!-- Circle with arrow at the right side of sign-in button -->
+        <FrameLayout
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="25dp"
+            android:background="@drawable/circle_light_blue_bg">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_arrow_right"
+                app:tint="@color/white" />
+        </FrameLayout>
+    </FrameLayout>
+
+</LinearLayout>

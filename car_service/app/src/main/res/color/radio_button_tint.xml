@@ -1,0 +1,4 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/blue_primary" android:state_checked="true" /> <!-- Blue when checked -->
+    <item android:color="#9B9B9B" android:state_checked="false" /> <!-- Gray when unchecked -->
+</selector>

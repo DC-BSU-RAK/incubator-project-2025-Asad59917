@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Soft Drop Shadow -->
+    <item android:top="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#05000000" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <item android:top="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#08000000" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <item android:top="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#0A000000" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <item android:top="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#0D000000" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- Main Card Background -->
+    <item android:top="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+</layer-list>

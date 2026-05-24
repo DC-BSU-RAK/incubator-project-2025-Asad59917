@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Icon -->
+        <TextView
+            android:id="@+id/notifIcon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/circle_light_blue_bg"
+            android:gravity="center"
+            android:text="🔔"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/notifTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:text="Title"
+            android:textColor="#212121"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/notifTime"
+            app:layout_constraintStart_toEndOf="@id/notifIcon"
+            app:layout_constraintTop_toTopOf="@id/notifIcon" />
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/notifTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Just now"
+            android:textColor="#9E9E9E"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/notifTitle" />
+
+        <!-- Message -->
+        <TextView
+            android:id="@+id/notifMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="0dp"
+            android:text="Message body"
+            android:textColor="#616161"
+            android:textSize="13sp"
+            android:lineSpacingExtra="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/notifTitle"
+            app:layout_constraintTop_toBottomOf="@id/notifTitle" />
+
+        <!-- Audience badge -->
+        <TextView
+            android:id="@+id/notifAudience"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_date_option_normal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:text="All Users"
+            android:textColor="#4B66F9"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/notifMessage"
+            app:layout_constraintTop_toBottomOf="@id/notifMessage" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

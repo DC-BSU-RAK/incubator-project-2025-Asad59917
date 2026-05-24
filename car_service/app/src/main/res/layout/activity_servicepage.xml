@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:id="@+id/service"
+    tools:context=".Servicepage">
+
+    <!-- Fixed Image at the Top (no rounded corners on the image itself) -->
+    <ImageView
+        android:id="@+id/ivHeaderImage"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:contentDescription="Engine oil change"
+        android:scaleType="centerCrop"
+        android:src="@drawable/engineoil"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Top Bar with Back Button and Title (positioned over the image) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Engine oil change"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnBack"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Content Card that overlaps the image with rounded top corners -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/contentCard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="200dp"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Scrollable Content Area -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:overScrollMode="never"
+                android:background="@android:color/white"
+                android:paddingBottom="80dp"
+                android:clipToPadding="false"
+                app:layout_constraintBottom_toTopOf="@+id/bottomButtonContainer"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvBookServiceTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Book a servicing technician"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPriceTag"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="From AED 100"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPriceDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="The starting amount is AED 100. The Exact price of the service will be determined based on your vehicle details and charged by technician."
+                        android:textColor="@color/dark_gray"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvServiceDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="The minor service includes a 10 point check, engine oil change, fluid top-ups, and a post check vehicle status report:"
+                        android:textColor="@color/dark_gray"
+                        android:textSize="16sp" />
+
+                    <!-- Service Points List -->
+                    <LinearLayout
+                        android:id="@+id/servicePointsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Premium engine oil change"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Original oil filter replacement"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Coolant level top-up"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Brake fluid top-up"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Steering fluid top-up"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Windscreen washer fluid top-up"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Tyre pressure inspection &amp; top-up"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Air filter inspection"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Battery inspection"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Wiper blade inspection"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Headlights &amp; brake inspection"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Parking brake inspection"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <!-- Fixed Button at the Bottom - MODIFIED TO MATCH THE REFERENCE IMAGE -->
+            <FrameLayout
+                android:id="@+id/bottomButtonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:background="#005662F6"
+                android:elevation="10dp"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="67dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBookNow"
+                        android:layout_width="310dp"
+                        android:layout_height="67dp"
+                        android:backgroundTint="@color/blue"
+                        android:text="Book now"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        app:cornerRadius="16dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <!-- Circle with arrow at the right side -->
+                    <FrameLayout
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_marginEnd="15dp"
+                        android:background="@drawable/circle_light_blue_bg"
+                        app:layout_constraintEnd_toEndOf="@+id/btnBookNow"
+                        app:layout_constraintTop_toTopOf="@+id/btnBookNow"
+                        app:layout_constraintBottom_toBottomOf="@+id/btnBookNow">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/white" />
+                    </FrameLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

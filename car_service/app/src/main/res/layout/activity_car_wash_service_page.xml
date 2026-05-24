@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:id="@+id/car_wash_service"
+    tools:context=".CarWashServicePage">
+
+    <!-- Fixed Image at the Top (no rounded corners on the image itself) -->
+    <ImageView
+        android:id="@+id/ivCarWashServiceHeaderImage"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:contentDescription="Car wash service"
+        android:scaleType="centerCrop"
+        android:src="@drawable/carwashservicepage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Top Bar with Back Button and Title (positioned over the image) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/carWashServiceTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnCarWashServiceBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCarWashServiceTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Car Wash Service"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnCarWashServiceBack"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Content Card that overlaps the image with rounded top corners -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/carWashServiceContentCard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="200dp"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Scrollable Content Area -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/carWashServiceScrollContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:overScrollMode="never"
+                android:background="@android:color/white"
+                android:paddingBottom="80dp"
+                android:clipToPadding="false"
+                app:layout_constraintBottom_toTopOf="@+id/carWashServiceBottomButtonContainer"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvCarWashServiceMainTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sparkling Clean Cars, at your door step!"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvCarWashServiceDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Tired of waiting in long lines at the car wash? We've got a better solution! Our mobile car wash service brings the cleaning right to your doorstep. Whether you're at home, work, or anywhere else, our team will make your car shine like new."
+                        android:textColor="@color/dark_gray"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvCarWashServiceServicesTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Our Services Include:"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Service Points List -->
+                    <LinearLayout
+                        android:id="@+id/carWashServicePointsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Exterior Wash: We'll give your car's exterior a thorough wash, removing dirt, grime, and road salt."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Interior Vacuuming: Say goodbye to crumbs and dust! Our team will vacuum your car's interior, including seats, carpets, and floor mats."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Window Cleaning: Crystal-clear windows enhance visibility and safety. We'll clean both the inside and outside of your windows."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Tire Shine: Your tires deserve some love too! We'll apply a tire shine to make them look brand new."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Doorstep Convenience: No need to drive anywhere—we come to you! Just schedule an appointment, and we'll be there on time."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="12dp"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="5dp"
+                            android:text="Enjoy the Results: Kick back while we transform your car into a clean, fresh-smelling oasis."
+                            android:textColor="@color/dark_gray"
+                            android:textSize="16sp"
+                            app:drawableStartCompat="@drawable/ic_bullet_point" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <!-- Fixed Button at the Bottom -->
+            <FrameLayout
+                android:id="@+id/carWashServiceBottomButtonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:background="#005662F6"
+                android:elevation="10dp"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="67dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCarWashServiceBookNow"
+                        android:layout_width="310dp"
+                        android:layout_height="67dp"
+                        android:backgroundTint="@color/blue"
+                        android:text="Book Now"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        app:cornerRadius="16dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <!-- Circle with arrow at the right side -->
+                    <FrameLayout
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_marginEnd="15dp"
+                        android:background="@drawable/circle_light_blue_bg"
+                        app:layout_constraintEnd_toEndOf="@+id/btnCarWashServiceBookNow"
+                        app:layout_constraintTop_toTopOf="@+id/btnCarWashServiceBookNow"
+                        app:layout_constraintBottom_toBottomOf="@+id/btnCarWashServiceBookNow">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/white" />
+                    </FrameLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

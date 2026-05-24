@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="6dp"
+    android:padding="20dp"
+    android:elevation="3dp"
+    android:background="@drawable/vehicle_item_background"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <!-- Vehicle Icon Container with Gradient Background -->
+    <FrameLayout
+        android:id="@+id/vehicleIconContainer"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/vehicle_icon_bg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/vehicleIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_car"
+            app:tint="@color/white" />
+    </FrameLayout>
+
+    <!-- Vehicle Information Container -->
+    <LinearLayout
+        android:id="@+id/vehicleInfoContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintStart_toEndOf="@id/vehicleIconContainer"
+        app:layout_constraintEnd_toStartOf="@id/selectionIndicator"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/vehicleBrandModel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BMW X5"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_text"
+           />
+
+        <TextView
+            android:id="@+id/vehicleDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="White • Car"
+            android:textSize="14sp"
+            android:textColor="@color/secondary_text"
+            android:layout_marginTop="2dp"
+            />
+
+        <TextView
+            android:id="@+id/vehiclePlate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ABC-1234"
+            android:textSize="13sp"
+            android:textColor="@color/plate_text"
+            android:background="@drawable/license_plate_bg"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:layout_marginTop="6dp"
+            android:letterSpacing="0.1" />
+    </LinearLayout>
+
+    <!-- Selection Indicator -->
+    <FrameLayout
+        android:id="@+id/selectionIndicator"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="@drawable/selection_indicator_bg"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_check"
+            app:tint="@color/white" />
+    </FrameLayout>
+
+    <!-- Arrow Icon (shown when not selected) -->
+    <ImageView
+        android:id="@+id/arrowRight"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_arrow_right"
+        android:alpha="0.6"
+        app:tint="@color/secondary_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

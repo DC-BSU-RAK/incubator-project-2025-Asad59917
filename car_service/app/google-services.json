@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "413791610104",
+    "project_id": "automate-carservice",
+    "storage_bucket": "automate-carservice.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413791610104:android:78aa9577a319e542fb470d",
+        "android_client_info": {
+          "package_name": "com.example.car_service"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5ZjQZnuScnj_iUB6TZgMHcHHLkBRtg3U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
