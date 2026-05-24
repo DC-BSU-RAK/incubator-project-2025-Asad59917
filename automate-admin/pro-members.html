@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Members - AutoMate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Pro Members</h1>
+                    <div class="page-subtitle">Manage Pro subscriptions — changes sync to user's app instantly</div>
+                </div>
+                <div id="userBadge"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <div style="font-size: 32px;">⏳</div>
+                <div>Loading Pro members from Firebase...</div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" style="display: none;">
+                <!-- Pro Stats -->
+                <div class="stats-grid" id="proStats"></div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⭐ Active Pro Members</div>
+                        <button class="btn btn-outline btn-sm" onclick="loadProMembers()">🔄 Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Joined</th>
+                                    <th>Bookings</th>
+                                    <th>Total Saved</th>
+                                    <th>Total Spent</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="proTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirm Cancel Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Cancel Pro Subscription</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div id="modalBody" style="font-size: 14px; color: var(--gray-700); line-height: 1.6;"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal()">Keep Pro</button>
+                <button class="btn btn-danger" id="confirmBtn">Cancel Pro</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firebase-data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        checkAuth();
+        document.getElementById('sidebar').innerHTML = buildSidebar('pro-members');
+        document.getElementById('userBadge').innerHTML = buildUserBadge();
+
+        let allUsers = [];
+        let proUsers = [];
+
+        async function loadProMembers() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+
+            try {
+                allUsers = await fetchUsers();
+                proUsers = allUsers.filter(u => u.isPro);
+
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+                renderStats();
+                renderProTable();
+            } catch (error) {
+                console.error('Failed to load pro members:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="font-size: 32px; color: var(--danger);">⚠️</div>
+                    <div style="color: var(--danger); margin-top: 10px;">Failed to load data</div>
+                    <div style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">${error.message}</div>
+                    <button class="btn btn-primary" onclick="loadProMembers()" style="margin-top: 14px;">Retry</button>
+                `;
+            }
+        }
+
+        function renderStats() {
+            const proRevenue = proUsers.length * 39;
+            const totalSaved = proUsers.reduce((sum, u) => sum + ((u.totalSpent || 0) * 0.15), 0);
+            const conversionRate = allUsers.length > 0
+                ? ((proUsers.length / allUsers.length) * 100).toFixed(1)
+                : '0';
+
+            document.getElementById('proStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon gold">⭐</div>
+                    <div class="stat-label">Active Pro Members</div>
+                    <div class="stat-value">${proUsers.length}</div>
+                    <div class="stat-change">From Firebase</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">💰</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                    <div class="stat-value">${formatAED(proRevenue)}</div>
+                    <div class="stat-change">${proUsers.length} × AED 39</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">💸</div>
+                    <div class="stat-label">Total Saved by Members</div>
+                    <div class="stat-value">${formatAED(Math.round(totalSaved))}</div>
+                    <div class="stat-change">15% discount applied</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">📊</div>
+                    <div class="stat-label">Conversion Rate</div>
+                    <div class="stat-value">${conversionRate}%</div>
+                    <div class="stat-change">${proUsers.length} of ${allUsers.length} users</div>
+                </div>
+            `;
+        }
+
+        function renderProTable() {
+            if (proUsers.length === 0) {
+                document.getElementById('proTable').innerHTML = `
+                    <tr><td colspan="8" class="empty-state">
+                        <div class="empty-icon">⭐</div>
+                        No Pro members yet. Users can upgrade to Pro through the app's Premium Scanner banner!
+                    </td></tr>
+                `;
+                return;
+            }
+
+            const html = proUsers.map(u => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 14px; background: linear-gradient(135deg, #FFD700, #B8860B);">
+                                ${(u.name || 'U').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <strong>${u.name || 'Unknown'}</strong>
+                                <div style="font-size: 11px;"><span class="badge badge-pro">⭐ PRO</span></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${u.email || '-'}</td>
+                    <td>${u.phone || '-'}</td>
+                    <td>${formatDate(u.joinDate)}</td>
+                    <td><strong>${u.totalBookings || 0}</strong></td>
+                    <td><strong style="color: var(--success);">${formatAED(Math.round((u.totalSpent || 0) * 0.15))}</strong></td>
+                    <td><strong style="color: var(--primary);">${formatAED(u.totalSpent)}</strong></td>
+                    <td>
+                        <button class="btn btn-danger btn-icon" onclick="cancelProClick('${u.id}', '${(u.name || 'User').replace(/'/g, '')}')">Cancel Pro</button>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('proTable').innerHTML = html;
+        }
+
+        // Modal logic
+        let pendingAction = null;
+
+        function showModal(body, onConfirm) {
+            document.getElementById('modalBody').innerHTML = body;
+            pendingAction = onConfirm;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            pendingAction = null;
+        }
+
+        document.getElementById('confirmBtn').addEventListener('click', () => {
+            if (pendingAction) pendingAction();
+        });
+
+        function cancelProClick(userId, userName) {
+            showModal(
+                `Cancel Pro subscription for <strong>${userName}</strong>?<br><br>
+                The user will <strong>lose Pro benefits immediately</strong>:
+                <ul style="margin-top: 8px; padding-left: 20px;">
+                    <li>15% booking discount</li>
+                    <li>Camera Warning Light Scanner</li>
+                    <li>Vehicle Health Reports</li>
+                    <li>Booking History Export</li>
+                </ul>
+                <br>This change syncs to their app instantly.`,
+                async () => {
+                    document.getElementById('confirmBtn').disabled = true;
+                    document.getElementById('confirmBtn').textContent = 'Cancelling...';
+
+                    const success = await cancelUserPro(userId);
+                    if (success) {
+                        showToast(`${userName}'s Pro subscription cancelled`, true);
+                        await loadProMembers();
+                    } else {
+                        showToast('Failed to cancel Pro', true);
+                    }
+                    closeModal();
+                    document.getElementById('confirmBtn').disabled = false;
+                    document.getElementById('confirmBtn').textContent = 'Cancel Pro';
+                }
+            );
+        }
+
+        // Initial load
+        loadProMembers();
+    </script>
+
+    <style>
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>

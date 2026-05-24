@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - AutoMate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Users</h1>
+                    <div class="page-subtitle">All registered customers from Firebase</div>
+                </div>
+                <div id="userBadge"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <div style="font-size: 32px;">⏳</div>
+                <div>Loading users from Firebase...</div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" style="display: none;">
+                <div class="card">
+                    <div class="search-bar" style="margin-bottom: 12px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search by name or email...">
+                    </div>
+
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="ALL">All Users <span id="countAll" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="PRO">Pro Members <span id="countPro" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="FREE">Free Users <span id="countFree" class="filter-count"></span></button>
+                        <button class="btn btn-outline btn-sm" onclick="loadUsers()" style="margin-left: auto;">🔄 Refresh</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Bookings</th>
+                                    <th>Total Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/firebase-data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        checkAuth();
+        document.getElementById('sidebar').innerHTML = buildSidebar('users');
+        document.getElementById('userBadge').innerHTML = buildUserBadge();
+
+        let allUsers = [];
+        let currentFilter = 'ALL';
+        let currentSearch = '';
+
+        async function loadUsers() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+
+            try {
+                allUsers = await fetchUsers();
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                updateCounts();
+                renderUsers();
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="font-size: 32px; color: var(--danger);">⚠️</div>
+                    <div style="color: var(--danger); margin-top: 10px;">Failed to load users</div>
+                    <div style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">${error.message}</div>
+                    <button class="btn btn-primary" onclick="loadUsers()" style="margin-top: 14px;">Retry</button>
+                `;
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('countAll').textContent = `(${allUsers.length})`;
+            document.getElementById('countPro').textContent = `(${allUsers.filter(u => u.isPro).length})`;
+            document.getElementById('countFree').textContent = `(${allUsers.filter(u => !u.isPro).length})`;
+        }
+
+        function renderUsers() {
+            let filtered = [...allUsers];
+            if (currentFilter === 'PRO') filtered = filtered.filter(u => u.isPro);
+            if (currentFilter === 'FREE') filtered = filtered.filter(u => !u.isPro);
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                filtered = filtered.filter(u =>
+                    (u.name || '').toLowerCase().includes(q) ||
+                    (u.email || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (filtered.length === 0) {
+                document.getElementById('usersTable').innerHTML = `<tr><td colspan="8" class="empty-state"><div class="empty-icon">👥</div>${allUsers.length === 0 ? 'No users yet. Sign up in the app to see them here!' : 'No users match your filters'}</td></tr>`;
+                return;
+            }
+
+            const html = filtered.map(u => `
+                <tr>
+                    <td><strong title="${u.id}">${(u.id || '').substring(0, 8)}...</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 14px;">${(u.name || 'U').charAt(0).toUpperCase()}</div>
+                            <strong>${u.name || 'Unknown'}</strong>
+                        </div>
+                    </td>
+                    <td>${u.email || '-'}</td>
+                    <td>${u.phone || '-'}</td>
+                    <td>${u.isPro ? '<span class="badge badge-pro">⭐ PRO</span>' : '<span class="badge badge-gray">FREE</span>'}</td>
+                    <td>${formatDate(u.joinDate)}</td>
+                    <td><strong>${u.totalBookings || 0}</strong></td>
+                    <td><strong style="color: var(--primary);">${formatAED(u.totalSpent)}</strong></td>
+                </tr>
+            `).join('');
+            document.getElementById('usersTable').innerHTML = html;
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderUsers();
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', e => {
+            currentSearch = e.target.value;
+            renderUsers();
+        });
+
+        // Initial load
+        loadUsers();
+    </script>
+
+    <style>
+        .filter-count {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-left: 4px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>

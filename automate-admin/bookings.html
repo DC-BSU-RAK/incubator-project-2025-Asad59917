@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookings - AutoMate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Bookings</h1>
+                    <div class="page-subtitle">Manage all customer bookings — changes sync to user's app instantly</div>
+                </div>
+                <div id="userBadge"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <div style="font-size: 32px;">⏳</div>
+                <div>Loading bookings from Firebase...</div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" style="display: none;">
+                <!-- Search Bar -->
+                <div class="card">
+                    <div class="search-bar" style="margin-bottom: 12px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search by customer name, booking ID, or service...">
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="ALL">All <span id="countAll" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="PENDING">Pending <span id="countPending" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="CONFIRMED">Confirmed <span id="countConfirmed" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="COMPLETED">Completed <span id="countCompleted" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="CANCELLED">Cancelled <span id="countCancelled" class="filter-count"></span></button>
+                        <button class="btn btn-outline btn-sm" onclick="loadBookings()" style="margin-left: auto;">🔄 Refresh</button>
+                    </div>
+
+                    <!-- Bookings Table -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Vehicle</th>
+                                    <th>Date</th>
+                                    <th>Location</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirm Action Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Confirm Action</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div id="modalBody" style="font-size: 14px; color: var(--gray-700); line-height: 1.6;"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="confirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firebase-data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        checkAuth();
+        document.getElementById('sidebar').innerHTML = buildSidebar('bookings');
+        document.getElementById('userBadge').innerHTML = buildUserBadge();
+
+        let allBookings = [];
+        let currentFilter = 'ALL';
+        let currentSearch = '';
+
+        function getStatusBadge(status) {
+            const map = {
+                'CONFIRMED': '<span class="badge badge-success">CONFIRMED</span>',
+                'PENDING': '<span class="badge badge-warning">PENDING</span>',
+                'COMPLETED': '<span class="badge badge-info">COMPLETED</span>',
+                'CANCELLED': '<span class="badge badge-danger">CANCELLED</span>'
+            };
+            return map[status] || `<span class="badge badge-gray">${status}</span>`;
+        }
+
+        async function loadBookings() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+
+            try {
+                allBookings = await fetchBookings();
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                updateCounts();
+                renderBookings();
+            } catch (error) {
+                console.error('Failed to load bookings:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="font-size: 32px; color: var(--danger);">⚠️</div>
+                    <div style="color: var(--danger); margin-top: 10px;">Failed to load bookings</div>
+                    <div style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">${error.message}</div>
+                    <button class="btn btn-primary" onclick="loadBookings()" style="margin-top: 14px;">Retry</button>
+                `;
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('countAll').textContent = `(${allBookings.length})`;
+            document.getElementById('countPending').textContent = `(${allBookings.filter(b => b.status === 'PENDING').length})`;
+            document.getElementById('countConfirmed').textContent = `(${allBookings.filter(b => b.status === 'CONFIRMED').length})`;
+            document.getElementById('countCompleted').textContent = `(${allBookings.filter(b => b.status === 'COMPLETED').length})`;
+            document.getElementById('countCancelled').textContent = `(${allBookings.filter(b => b.status === 'CANCELLED').length})`;
+        }
+
+        function renderBookings() {
+            let filtered = [...allBookings];
+
+            if (currentFilter !== 'ALL') {
+                filtered = filtered.filter(b => b.status === currentFilter);
+            }
+
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                filtered = filtered.filter(b =>
+                    (b.userName || '').toLowerCase().includes(q) ||
+                    (b.id || '').toLowerCase().includes(q) ||
+                    (b.serviceName || '').toLowerCase().includes(q) ||
+                    (b.userEmail || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (filtered.length === 0) {
+                document.getElementById('bookingsTable').innerHTML = `
+                    <tr><td colspan="9" class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        ${allBookings.length === 0
+                            ? 'No bookings yet. Have someone book a service in the app to see it here!'
+                            : 'No bookings match your filters'}
+                    </td></tr>
+                `;
+                return;
+            }
+
+            const html = filtered.map(b => `
+                <tr>
+                    <td><strong title="${b.id}">${(b.id || '').substring(0, 8)}...</strong></td>
+                    <td>
+                        <div style="font-weight: 600;">${b.userName || 'Unknown'}</div>
+                        <div style="font-size: 11px; color: var(--gray-600);">${b.userEmail || ''}</div>
+                    </td>
+                    <td>${b.serviceName || ''}</td>
+                    <td style="font-size: 12px;">
+                        ${b.vehicleBrand || ''} ${b.vehicleModel || ''}<br>
+                        <span style="color: var(--gray-600);">${b.plateNumber || ''}</span>
+                    </td>
+                    <td style="font-size: 12px;">${b.date || ''}</td>
+                    <td style="font-size: 12px;">${b.location || ''}</td>
+                    <td>
+                        <strong style="color: var(--primary);">${formatAED(b.price)}</strong>
+                        ${b.isProDiscount ? '<br><span class="badge badge-pro" style="font-size: 9px;">PRO 15% OFF</span>' : ''}
+                    </td>
+                    <td>${getStatusBadge(b.status)}</td>
+                    <td>
+                        ${b.status === 'PENDING' ? `<button class="btn btn-success btn-icon" onclick="confirmBookingClick('${b.docId}')">✓ Confirm</button>` : ''}
+                        ${b.status === 'PENDING' || b.status === 'CONFIRMED' ? `<button class="btn btn-danger btn-icon" onclick="cancelBookingClick('${b.docId}')">✕ Cancel</button>` : ''}
+                        ${b.status === 'CONFIRMED' ? `<button class="btn btn-primary btn-icon" onclick="markCompletedClick('${b.docId}')">✓ Done</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('bookingsTable').innerHTML = html;
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderBookings();
+            });
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', e => {
+            currentSearch = e.target.value;
+            renderBookings();
+        });
+
+        // Modal logic
+        let pendingAction = null;
+
+        function showModal(title, body, onConfirm) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+            pendingAction = onConfirm;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            pendingAction = null;
+        }
+
+        document.getElementById('confirmBtn').addEventListener('click', () => {
+            if (pendingAction) pendingAction();
+        });
+
+async function sendUserNotification(userId, title, message) {
+    try {
+        const ref = db.collection('notifications').doc();
+        await ref.set({
+            id: ref.id,
+            title, message,
+            audience: 'user',
+            sentTo: userId,
+            targetUserId: userId,
+            sentAt: Date.now(),
+            createdAt: Date.now(),
+            recipients: 1
+        });
+    } catch (e) { console.error('notify failed', e); }
+}
+ 
+function confirmBookingClick(docId) {
+    const b = allBookings.find(x => x.docId === docId);
+    showModal('Confirm Booking',
+        `Confirm booking for <strong>${b.userName}</strong>?<br><br><strong>${b.serviceName}</strong> on ${b.date}<br>User will be notified.`,
+        async () => {
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmBtn').textContent = 'Updating...';
+            const ok = await updateBookingStatus(docId, 'CONFIRMED');
+            if (ok) {
+                await sendUserNotification(b.userId, 'Booking Confirmed! 🎉',
+                    `Your ${b.serviceName} booking on ${b.date} has been confirmed. We'll be there on time!`);
+                showToast('Booking confirmed & user notified');
+                await loadBookings();
+            } else showToast('Failed to update booking', true);
+            closeModal();
+            document.getElementById('confirmBtn').disabled = false;
+            document.getElementById('confirmBtn').textContent = 'Confirm';
+        }
+    );
+}
+ 
+function cancelBookingClick(docId) {
+    const b = allBookings.find(x => x.docId === docId);
+    showModal('Cancel Booking',
+        `Cancel booking for <strong>${b.userName}</strong>?<br><br><strong>${b.serviceName}</strong> on ${b.date}<br>User will be notified.`,
+        async () => {
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmBtn').textContent = 'Updating...';
+            const ok = await updateBookingStatus(docId, 'CANCELLED');
+            if (ok) {
+                await sendUserNotification(b.userId, 'Booking Cancelled ❌',
+                    `Your ${b.serviceName} booking on ${b.date} has been cancelled.`);
+                showToast('Booking cancelled & user notified', true);
+                await loadBookings();
+            } else showToast('Failed to update booking', true);
+            closeModal();
+            document.getElementById('confirmBtn').disabled = false;
+            document.getElementById('confirmBtn').textContent = 'Confirm';
+        }
+    );
+}
+ 
+async function markCompletedClick(docId) {
+    const b = allBookings.find(x => x.docId === docId);
+    const ok = await updateBookingStatus(docId, 'COMPLETED');
+    if (ok) {
+        await sendUserNotification(b.userId, 'Service Completed ✅',
+            `Your ${b.serviceName} has been completed. Thank you for choosing AutoMate!`);
+        showToast('Booking completed & user notified');
+        await loadBookings();
+    } else showToast('Failed to update booking', true);
+}
+ 
+        // Initial load
+        loadBookings();
+    </script>
+
+    <style>
+        .filter-count {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-left: 4px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>

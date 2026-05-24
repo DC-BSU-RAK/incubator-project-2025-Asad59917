@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AutoMate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+                    <div class="page-subtitle">Real-time data from your AutoMate app</div>
+                </div>
+                <div id="userBadge"></div>
+            </div>
+
+            <div id="loadingState" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <div style="font-size: 32px;">⏳</div>
+                <div>Loading data from Firebase...</div>
+            </div>
+
+            <div id="mainContent" style="display: none;">
+                <!-- Stats Grid -->
+                <div class="stats-grid" id="statsGrid"></div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <!-- Revenue Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📈 Booking Status Distribution</div>
+                            <span class="badge badge-info">Live Data</span>
+                        </div>
+                        <div id="statusChart"></div>
+                    </div>
+
+                    <!-- Top Services -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">🏆 Most Booked Services</div>
+                        </div>
+                        <div id="topServices"></div>
+                    </div>
+                </div>
+
+                <!-- Recent Bookings -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📅 Recent Bookings</div>
+                        <a href="bookings.html" class="btn btn-outline">View All →</a>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Date</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBookings"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/firebase-data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        checkAuth();
+        document.getElementById('sidebar').innerHTML = buildSidebar('dashboard');
+        document.getElementById('userBadge').innerHTML = buildUserBadge();
+
+        function getStatusBadge(status) {
+            const map = {
+                'CONFIRMED': '<span class="badge badge-success">CONFIRMED</span>',
+                'PENDING': '<span class="badge badge-warning">PENDING</span>',
+                'COMPLETED': '<span class="badge badge-info">COMPLETED</span>',
+                'CANCELLED': '<span class="badge badge-danger">CANCELLED</span>'
+            };
+            return map[status] || `<span class="badge badge-gray">${status}</span>`;
+        }
+
+        async function loadDashboard() {
+            try {
+                const [stats, bookings, services] = await Promise.all([
+                    computeStats(),
+                    fetchBookings(),
+                    fetchServices()
+                ]);
+
+                // Hide loading
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+                // Render stats
+                document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon blue">💰</div>
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value">${formatAED(stats.totalRevenue)}</div>
+                        <div class="stat-change">From completed bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">📅</div>
+                        <div class="stat-label">Total Bookings</div>
+                        <div class="stat-value">${stats.totalBookings}</div>
+                        <div class="stat-change">${stats.todayBookings} today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">👥</div>
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value">${stats.totalUsers}</div>
+                        <div class="stat-change">Registered customers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon gold">⭐</div>
+                        <div class="stat-label">Pro Members</div>
+                        <div class="stat-value">${stats.proUsers}</div>
+                        <div class="stat-change">${stats.conversionRate}% conversion</div>
+                    </div>
+                `;
+
+                // Status chart
+                const statuses = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+                const colors = { CONFIRMED: 'var(--success)', PENDING: 'var(--warning)', COMPLETED: 'var(--primary)', CANCELLED: 'var(--danger)' };
+
+                const total = bookings.length || 1;
+                document.getElementById('statusChart').innerHTML = statuses.map(status => {
+                    const count = bookings.filter(b => b.status === status).length;
+                    const pct = ((count / total) * 100).toFixed(1);
+                    return `
+                        <div style="margin-bottom: 14px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-weight: 600; font-size: 13px;">${status}</span>
+                                <span style="color: var(--gray-600); font-size: 12px;">${count} bookings (${pct}%)</span>
+                            </div>
+                            <div style="background: var(--gray-200); border-radius: 6px; height: 14px; overflow: hidden;">
+                                <div style="background: ${colors[status]}; height: 100%; width: ${pct}%; transition: width 0.6s;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Top services (count by service from bookings)
+                const serviceCounts = {};
+                bookings.forEach(b => {
+                    serviceCounts[b.serviceName] = (serviceCounts[b.serviceName] || 0) + 1;
+                });
+
+                const topServices = Object.entries(serviceCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                if (topServices.length === 0) {
+                    document.getElementById('topServices').innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div>No bookings yet</div>';
+                } else {
+                    document.getElementById('topServices').innerHTML = topServices.map(([name, count]) => {
+                        const service = services.find(s => s.name === name);
+                        const icon = service ? service.icon : '🔧';
+                        return `
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-100);">
+                                <div style="width: 36px; height: 36px; background: var(--primary-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                    ${icon}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 13px; font-weight: 600;">${name}</div>
+                                    <div style="font-size: 11px; color: var(--gray-600);">${count} bookings</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                // Recent bookings
+                const recent = bookings.slice(0, 6);
+                if (recent.length === 0) {
+                    document.getElementById('recentBookings').innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon">📭</div>No bookings yet. Sign up in the app and book a service to see data here!</td></tr>';
+                } else {
+                    document.getElementById('recentBookings').innerHTML = recent.map(b => `
+                        <tr>
+                            <td><strong>${b.id.substring(0, 8)}...</strong></td>
+                            <td>${b.userName}</td>
+                            <td>${b.serviceName}</td>
+                            <td>${b.date}</td>
+                            <td><strong style="color: var(--primary);">${formatAED(b.price)}</strong>${b.isProDiscount ? ' <span class="badge badge-pro" style="font-size: 9px;">PRO</span>' : ''}</td>
+                            <td>${getStatusBadge(b.status)}</td>
+                        </tr>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Dashboard error:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="font-size: 32px; color: var(--danger);">⚠️</div>
+                    <div style="color: var(--danger); margin-top: 10px;">Failed to load data</div>
+                    <div style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">${error.message}</div>
+                `;
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

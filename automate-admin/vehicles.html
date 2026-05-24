@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicles - AutoMate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Vehicles</h1>
+                    <div class="page-subtitle">All registered customer vehicles from Firebase</div>
+                </div>
+                <div id="userBadge"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <div style="font-size: 32px;">⏳</div>
+                <div>Loading vehicles from Firebase...</div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" style="display: none;">
+                <div class="card">
+                    <div class="search-bar" style="margin-bottom: 12px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search by owner, brand, model, or plate...">
+                    </div>
+
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="ALL">All <span id="countAll" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="Car">🚗 Cars <span id="countCar" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="Motorcycle">🏍️ Motorcycles <span id="countMotorcycle" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="Boat">⛵ Boats <span id="countBoat" class="filter-count"></span></button>
+                        <button class="filter-btn" data-filter="Other">🚚 Other <span id="countOther" class="filter-count"></span></button>
+                        <button class="btn btn-outline btn-sm" onclick="loadVehicles()" style="margin-left: auto;">🔄 Refresh</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Owner</th>
+                                    <th>Brand & Model</th>
+                                    <th>Color</th>
+                                    <th>Plate Number</th>
+                                    <th>Chassis Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehiclesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/firebase-data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        checkAuth();
+        document.getElementById('sidebar').innerHTML = buildSidebar('vehicles');
+        document.getElementById('userBadge').innerHTML = buildUserBadge();
+
+        let allVehicles = [];
+        let currentFilter = 'ALL';
+        let currentSearch = '';
+
+        function getVehicleIcon(type) {
+            const icons = {
+                'Car': '🚗',
+                'Motorcycle': '🏍️',
+                'Bike': '🏍️',
+                'Boat': '⛵',
+                'Other': '🚚'
+            };
+            return icons[type] || '🚗';
+        }
+
+        async function loadVehicles() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+
+            try {
+                allVehicles = await fetchVehicles();
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                updateCounts();
+                renderVehicles();
+            } catch (error) {
+                console.error('Failed to load vehicles:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="font-size: 32px; color: var(--danger);">⚠️</div>
+                    <div style="color: var(--danger); margin-top: 10px;">Failed to load vehicles</div>
+                    <div style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">${error.message}</div>
+                    <button class="btn btn-primary" onclick="loadVehicles()" style="margin-top: 14px;">Retry</button>
+                `;
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('countAll').textContent = `(${allVehicles.length})`;
+            document.getElementById('countCar').textContent = `(${allVehicles.filter(v => v.type === 'Car').length})`;
+            document.getElementById('countMotorcycle').textContent = `(${allVehicles.filter(v => v.type === 'Motorcycle' || v.type === 'Bike').length})`;
+            document.getElementById('countBoat').textContent = `(${allVehicles.filter(v => v.type === 'Boat').length})`;
+            document.getElementById('countOther').textContent = `(${allVehicles.filter(v => v.type === 'Other').length})`;
+        }
+
+        function renderVehicles() {
+            let filtered = [...allVehicles];
+
+            if (currentFilter !== 'ALL') {
+                if (currentFilter === 'Motorcycle') {
+                    filtered = filtered.filter(v => v.type === 'Motorcycle' || v.type === 'Bike');
+                } else {
+                    filtered = filtered.filter(v => v.type === currentFilter);
+                }
+            }
+
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                filtered = filtered.filter(v =>
+                    (v.userName || '').toLowerCase().includes(q) ||
+                    (v.brand || '').toLowerCase().includes(q) ||
+                    (v.model || '').toLowerCase().includes(q) ||
+                    (v.plateNumber || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (filtered.length === 0) {
+                document.getElementById('vehiclesTable').innerHTML = `
+                    <tr><td colspan="7" class="empty-state">
+                        <div class="empty-icon">🚗</div>
+                        ${allVehicles.length === 0
+                            ? 'No vehicles registered yet. Have a user add a vehicle in the app to see it here!'
+                            : 'No vehicles match your filters'}
+                    </td></tr>
+                `;
+                return;
+            }
+
+            const html = filtered.map(v => `
+                <tr>
+                    <td><strong title="${v.id}">${(v.id || '').substring(0, 8)}...</strong></td>
+                    <td>
+                        <span style="font-size: 24px;">${getVehicleIcon(v.type)}</span>
+                        <span class="badge badge-info" style="margin-left: 6px;">${v.type || 'Car'}</span>
+                    </td>
+                    <td><strong>${v.userName || 'Unknown'}</strong></td>
+                    <td><strong>${v.brand || ''} ${v.model || ''}</strong></td>
+                    <td>${v.color ? `<span style="display: inline-flex; align-items: center; gap: 6px;">${v.color}</span>` : '-'}</td>
+                    <td><code style="background: var(--gray-100); padding: 4px 8px; border-radius: 4px;">${v.plateNumber || '-'}</code></td>
+                    <td style="font-family: monospace; font-size: 12px; color: var(--gray-600);">${v.chassisNumber || '-'}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('vehiclesTable').innerHTML = html;
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderVehicles();
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', e => {
+            currentSearch = e.target.value;
+            renderVehicles();
+        });
+
+        // Initial load
+        loadVehicles();
+    </script>
+
+    <style>
+        .filter-count {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-left: 4px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>

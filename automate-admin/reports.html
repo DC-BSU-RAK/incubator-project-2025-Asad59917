@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - AutoMate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Reports & Analytics</h1>
+                    <div class="page-subtitle">Real-time business insights from Firebase</div>
+                </div>
+                <div id="userBadge"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <div style="font-size: 32px;">⏳</div>
+                <div>Loading analytics from Firebase...</div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" style="display: none;">
+                <div style="margin-bottom: 16px; display: flex; justify-content: flex-end; gap: 8px;">
+                    <button class="btn btn-outline btn-sm" onclick="loadReports()">🔄 Refresh</button>
+                    <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 Export Bookings CSV</button>
+                </div>
+
+                <div class="stats-grid" id="reportStats"></div>
+
+                <!-- Service Performance -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🏆 Service Performance</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Bookings</th>
+                                    <th>Avg Price</th>
+                                    <th>Revenue</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="servicesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Booking Status Breakdown -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 Booking Status Breakdown</div>
+                    </div>
+                    <div id="statusBreakdown"></div>
+                </div>
+
+                <!-- Top Customers -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">👑 Top Customers</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Bookings</th>
+                                    <th>Total Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topCustomersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/firebase-data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        checkAuth();
+        document.getElementById('sidebar').innerHTML = buildSidebar('reports');
+        document.getElementById('userBadge').innerHTML = buildUserBadge();
+
+        let allBookings = [];
+        let allUsers = [];
+        let allServices = [];
+
+        async function loadReports() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+
+            try {
+                const [bookings, users, services] = await Promise.all([
+                    fetchBookings(),
+                    fetchUsers(),
+                    fetchServices()
+                ]);
+
+                allBookings = bookings;
+                allUsers = users;
+                allServices = services;
+
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+                renderStats();
+                renderServicesTable();
+                renderStatusBreakdown();
+                renderTopCustomers();
+            } catch (error) {
+                console.error('Failed to load reports:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="font-size: 32px; color: var(--danger);">⚠️</div>
+                    <div style="color: var(--danger); margin-top: 10px;">Failed to load reports</div>
+                    <div style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">${error.message}</div>
+                    <button class="btn btn-primary" onclick="loadReports()" style="margin-top: 14px;">Retry</button>
+                `;
+            }
+        }
+
+        function renderStats() {
+            const completedBookings = allBookings.filter(b => b.status === 'COMPLETED');
+            const totalRevenue = completedBookings.reduce((s, b) => s + (b.price || 0), 0);
+            const avgBooking = completedBookings.length > 0
+                ? Math.round(totalRevenue / completedBookings.length)
+                : 0;
+            const completionRate = allBookings.length > 0
+                ? ((completedBookings.length / allBookings.length) * 100).toFixed(1)
+                : '0';
+            const proUsers = allUsers.filter(u => u.isPro).length;
+
+            document.getElementById('reportStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon green">💰</div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value">${formatAED(totalRevenue)}</div>
+                    <div class="stat-change">From ${completedBookings.length} completed bookings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">📊</div>
+                    <div class="stat-label">Avg Booking Value</div>
+                    <div class="stat-value">${formatAED(avgBooking)}</div>
+                    <div class="stat-change">Per completed booking</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">📈</div>
+                    <div class="stat-label">Completion Rate</div>
+                    <div class="stat-value">${completionRate}%</div>
+                    <div class="stat-change">${completedBookings.length} of ${allBookings.length}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon gold">⭐</div>
+                    <div class="stat-label">Pro Revenue</div>
+                    <div class="stat-value">${formatAED(proUsers * 39)}</div>
+                    <div class="stat-change">From ${proUsers} subscribers</div>
+                </div>
+            `;
+        }
+
+        function renderServicesTable() {
+            // Calculate revenue per service from actual bookings
+            const serviceStats = {};
+
+            allBookings.forEach(b => {
+                const name = b.serviceName || 'Unknown';
+                if (!serviceStats[name]) {
+                    serviceStats[name] = {
+                        name,
+                        bookings: 0,
+                        totalRevenue: 0,
+                        completedRevenue: 0
+                    };
+                }
+                serviceStats[name].bookings++;
+                if (b.status === 'COMPLETED') {
+                    serviceStats[name].completedRevenue += (b.price || 0);
+                }
+                serviceStats[name].totalRevenue += (b.price || 0);
+            });
+
+            const sorted = Object.values(serviceStats).sort((a, b) => b.completedRevenue - a.completedRevenue);
+
+            if (sorted.length === 0) {
+                document.getElementById('servicesTable').innerHTML = `
+                    <tr><td colspan="5" class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        No bookings yet. Service performance will appear when users start booking.
+                    </td></tr>
+                `;
+                return;
+            }
+
+            const maxRev = Math.max(...sorted.map(s => s.completedRevenue || 1), 1);
+
+            document.getElementById('servicesTable').innerHTML = sorted.map(s => {
+                const service = allServices.find(srv => srv.name === s.name);
+                const icon = service ? service.icon : '🔧';
+                const avgPrice = s.bookings > 0 ? Math.round(s.totalRevenue / s.bookings) : 0;
+                const perf = (s.completedRevenue / maxRev) * 100;
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 24px;">${icon}</span>
+                                <strong>${s.name}</strong>
+                            </div>
+                        </td>
+                        <td><strong>${s.bookings}</strong></td>
+                        <td>${formatAED(avgPrice)}</td>
+                        <td><strong style="color: var(--primary);">${formatAED(s.completedRevenue)}</strong></td>
+                        <td>
+                            <div style="background: var(--gray-200); border-radius: 4px; height: 8px; width: 150px; overflow: hidden;">
+                                <div style="background: var(--primary); height: 100%; width: ${perf}%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderStatusBreakdown() {
+            const statuses = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+            const colors = {
+                CONFIRMED: 'var(--success)',
+                PENDING: 'var(--warning)',
+                COMPLETED: 'var(--primary)',
+                CANCELLED: 'var(--danger)'
+            };
+
+            const total = allBookings.length || 1;
+
+            document.getElementById('statusBreakdown').innerHTML = statuses.map(status => {
+                const count = allBookings.filter(b => b.status === status).length;
+                const pct = ((count / total) * 100).toFixed(1);
+                return `
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-weight: 600;">${status}</span>
+                            <span style="color: var(--gray-600); font-size: 13px;">${count} (${pct}%)</span>
+                        </div>
+                        <div style="background: var(--gray-200); border-radius: 4px; height: 12px; overflow: hidden;">
+                            <div style="background: ${colors[status]}; height: 100%; width: ${pct}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTopCustomers() {
+            const sorted = [...allUsers].sort((a, b) => (b.totalSpent || 0) - (a.totalSpent || 0)).slice(0, 10);
+
+            if (sorted.length === 0) {
+                document.getElementById('topCustomersTable').innerHTML = `
+                    <tr><td colspan="5" class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        No customers yet
+                    </td></tr>
+                `;
+                return;
+            }
+
+            document.getElementById('topCustomersTable').innerHTML = sorted.map(u => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 14px;">${(u.name || 'U').charAt(0).toUpperCase()}</div>
+                            <strong>${u.name || 'Unknown'}</strong>
+                        </div>
+                    </td>
+                    <td>${u.email || '-'}</td>
+                    <td>${u.isPro ? '<span class="badge badge-pro">⭐ PRO</span>' : '<span class="badge badge-gray">FREE</span>'}</td>
+                    <td><strong>${u.totalBookings || 0}</strong></td>
+                    <td><strong style="color: var(--primary);">${formatAED(u.totalSpent)}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        function exportCSV() {
+            if (allBookings.length === 0) {
+                showToast('No bookings to export', true);
+                return;
+            }
+
+            let csv = 'Booking ID,Customer,Email,Service,Vehicle,Date,Location,Price,Pro Discount,Status\n';
+            allBookings.forEach(b => {
+                csv += `"${b.id}","${b.userName}","${b.userEmail}","${b.serviceName}","${b.vehicleBrand} ${b.vehicleModel}","${b.date}","${b.location}",${b.price},${b.isProDiscount ? 'Yes' : 'No'},${b.status}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const date = new Date().toISOString().split('T')[0];
+            a.download = `automate-bookings-${date}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Report exported successfully!');
+        }
+
+        // Initial load
+        loadReports();
+    </script>
+
+    <style>
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>

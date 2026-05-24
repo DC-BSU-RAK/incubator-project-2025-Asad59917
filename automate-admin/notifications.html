@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - AutoMate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Notifications</h1>
+                    <div class="page-subtitle">Send announcements to your users</div>
+                </div>
+                <div id="userBadge"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <div style="font-size: 32px;">⏳</div>
+                <div>Loading data from Firebase...</div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Send Notification Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📤 Send New Notification</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Send To</label>
+                            <select class="form-select" id="audience">
+                                <option value="all">All Users (<span id="countAll">0</span>)</option>
+                                <option value="pro">Pro Members Only (<span id="countPro">0</span>)</option>
+                                <option value="free">Free Users Only (<span id="countFree">0</span>)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-input" id="title" placeholder="e.g., Special Offer!">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-textarea" id="message" placeholder="Type your notification message..." rows="4"></textarea>
+                        </div>
+
+                        <button class="btn btn-primary" style="width: 100%;" id="sendBtn" onclick="sendNotification()">📤 Send Notification</button>
+                    </div>
+
+                    <!-- Quick Templates -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">⚡ Quick Templates</div>
+                        </div>
+
+                        <div onclick="useTemplate('Special Offer!', 'Get 20% off on Car Wash this weekend')" style="padding: 12px; background: var(--gray-50); border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--gray-50)'">
+                            <strong>🎉 Promotional Offer</strong>
+                            <p style="font-size: 12px; color: var(--gray-600); margin-top: 4px;">Send promotion to all users</p>
+                        </div>
+
+                        <div onclick="useTemplate('Service Reminder', 'Your car is due for service. Book now!')" style="padding: 12px; background: var(--gray-50); border-radius: 8px; margin-bottom: 8px; cursor: pointer;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--gray-50)'">
+                            <strong>🔔 Service Reminder</strong>
+                            <p style="font-size: 12px; color: var(--gray-600); margin-top: 4px;">Remind users about service</p>
+                        </div>
+
+                        <div onclick="useTemplate('Welcome to Pro!', 'Thank you for upgrading to AutoMate Pro')" style="padding: 12px; background: var(--gray-50); border-radius: 8px; margin-bottom: 8px; cursor: pointer;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--gray-50)'">
+                            <strong>⭐ Welcome Pro</strong>
+                            <p style="font-size: 12px; color: var(--gray-600); margin-top: 4px;">Welcome new Pro members</p>
+                        </div>
+
+                        <div onclick="useTemplate('App Update Available', 'New features are here! Update your AutoMate app.')" style="padding: 12px; background: var(--gray-50); border-radius: 8px; cursor: pointer;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--gray-50)'">
+                            <strong>📱 App Update</strong>
+                            <p style="font-size: 12px; color: var(--gray-600); margin-top: 4px;">Notify about updates</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification History -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <div class="card-title">📜 Notification History</div>
+                        <button class="btn btn-outline btn-sm" onclick="loadData()">🔄 Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Message</th>
+                                    <th>Sent To</th>
+                                    <th>Recipients</th>
+                                    <th>Sent At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/firebase-data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        checkAuth();
+        document.getElementById('sidebar').innerHTML = buildSidebar('notifications');
+        document.getElementById('userBadge').innerHTML = buildUserBadge();
+
+        let allUsers = [];
+        let proUsersCount = 0;
+        let freeUsersCount = 0;
+
+        async function loadData() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+
+            try {
+                const [users, notifs] = await Promise.all([
+                    fetchUsers(),
+                    fetchNotifications()
+                ]);
+
+                allUsers = users;
+                proUsersCount = users.filter(u => u.isPro).length;
+                freeUsersCount = users.filter(u => !u.isPro).length;
+
+                document.getElementById('countAll').textContent = users.length;
+                document.getElementById('countPro').textContent = proUsersCount;
+                document.getElementById('countFree').textContent = freeUsersCount;
+
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+                renderHistory(notifs);
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="font-size: 32px; color: var(--danger);">⚠️</div>
+                    <div style="color: var(--danger); margin-top: 10px;">Failed to load data</div>
+                    <div style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">${error.message}</div>
+                    <button class="btn btn-primary" onclick="loadData()" style="margin-top: 14px;">Retry</button>
+                `;
+            }
+        }
+
+        function renderHistory(notifs) {
+            if (notifs.length === 0) {
+                document.getElementById('historyTable').innerHTML = `
+                    <tr><td colspan="5" class="empty-state">
+                        <div class="empty-icon">📬</div>
+                        No notifications sent yet. Send your first one above!
+                    </td></tr>
+                `;
+                return;
+            }
+
+            const html = notifs.map(n => `
+                <tr>
+                    <td><strong>${n.title || ''}</strong></td>
+                    <td style="color: var(--gray-600); max-width: 300px;">${n.message || ''}</td>
+                    <td><span class="badge badge-info">${n.sentTo || 'All'}</span></td>
+                    <td><strong>${n.recipients || 0}</strong></td>
+                    <td style="font-size: 12px;">${formatTimestamp(n.sentAt || n.createdAt)}</td>
+                </tr>
+            `).join('');
+            document.getElementById('historyTable').innerHTML = html;
+        }
+
+        function formatTimestamp(ts) {
+            if (!ts) return '-';
+            try {
+                const d = new Date(typeof ts === 'number' ? ts : ts);
+                return d.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch {
+                return ts;
+            }
+        }
+
+        function useTemplate(title, message) {
+            document.getElementById('title').value = title;
+            document.getElementById('message').value = message;
+        }
+
+        async function sendNotification() {
+            const audience = document.getElementById('audience').value;
+            const title = document.getElementById('title').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (!title || !message) {
+                showToast('Please fill in both title and message', true);
+                return;
+            }
+
+            let recipients = allUsers.length;
+            let sentTo = "All Users";
+            if (audience === 'pro') { recipients = proUsersCount; sentTo = "Pro Users"; }
+            if (audience === 'free') { recipients = freeUsersCount; sentTo = "Free Users"; }
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+
+            const notification = {
+                title,
+                message,
+                sentTo,
+                recipients,
+                sentAt: Date.now(),
+                audience
+            };
+
+            const success = await saveNotification(notification);
+
+            sendBtn.disabled = false;
+            sendBtn.textContent = '📤 Send Notification';
+
+            if (success) {
+                document.getElementById('title').value = '';
+                document.getElementById('message').value = '';
+                showToast(`Notification saved! ${recipients} users will be notified.`);
+                await loadData();
+            } else {
+                showToast('Failed to send notification', true);
+            }
+        }
+
+        // Initial load
+        loadData();
+    </script>
+
+    <style>
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>
